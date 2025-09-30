@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #chartContainer { width: 80%; max-width: 800px; margin-top: 30px; }
+    button { padding: 8px 16px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>CSV Dashboard</h1>
+  <input type="file" id="csvFile" accept=".csv">
+  <button id="uploadBtn">Upload CSV</button>
+  <p>Select a CSV file with two columns: <strong>Label, Value</strong></p>
+
+  <div id="chartContainer">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+    const csvFileInput = document.getElementById('csvFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const ctx = document.getElementById('myChart').getContext('2d');
+    let chart;
+
+    uploadBtn.addEventListener('click', function() {
+      const file = csvFileInput.files[0];
+      if (!file) {
+        alert("Please select a CSV file first!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const text = event.target.result;
+        const rows = text.trim().split('\n');
+        const labels = [];
+        const values = [];
+
+        rows.forEach(row => {
+          const [label, value] = row.split(',');
+          labels.push(label);
+          values.push(parseFloat(value));
+        });
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Values',
+              data: values,
+              backgroundColor: 'rgba(54, 162, 235, 0.6)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      };
+      reader.readAsText(file);
+    });
+  </script>
+
+</body>
+</html>
